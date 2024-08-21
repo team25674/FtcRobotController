@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="SkidSteer_DriveMode")
-public class TutorialSkidSteerWithMode extends OpMode {
+public class  TutorialSkidSteerWithMode extends OpMode {
 
     DcMotor left_motor;
     DcMotor right_motor;
@@ -14,6 +14,7 @@ public class TutorialSkidSteerWithMode extends OpMode {
     // drive mode
     boolean slow_mode_enabled; // option 1: use boolean for 2 states
     DriveMode drive_mode; // option 2: use an enum to store many states
+    boolean previous_a;
 
     @Override
     public void init() {
@@ -33,17 +34,43 @@ public class TutorialSkidSteerWithMode extends OpMode {
     @Override
     public void loop() {
         // read inputs
+
+        if (previous_a && !gamepad1.a){
+            if (drive_mode == DriveMode.SLOW) {
+                drive_mode = DriveMode.NORMAL;
+            }else {
+                drive_mode = DriveMode.SLOW;
+            }
+        }
+
+
         double left_power_input = gamepad1.left_stick_y;
         double right_power_input = gamepad1.right_stick_y;
+        double left_power = left_power_input;
+        double right_power = right_power_input;
+
+        if (drive_mode == DriveMode.SLOW){
+            left_power = left_power/2;
+            right_power = right_power/2;
+
+        }
 
         // update motors
-        left_motor.setPower(left_power_input);
-        right_motor.setPower(right_power_input);
+        left_motor.setPower(left_power);
+        right_motor.setPower(right_power);
+
+
+
 
         // update telemetry
-        telemetry.addData("left_input", left_power_input);
-        telemetry.addData("right_input", right_power_input);
+        telemetry.addData("left_power", left_power);
+        telemetry.addData("right_power", right_power);
+        telemetry.addData("mode",drive_mode);
         telemetry.update();
+
+        previous_a = gamepad1.a;
+
+
     }
 }
 
