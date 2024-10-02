@@ -22,6 +22,6 @@ public class TissueBoxExample {
     }
 
     private void decrementTissues() {
-        currentTissueCount = currentTissueCount - 2;
+        currentTissueCount = currentTissueCount - 3;
     }
 }
