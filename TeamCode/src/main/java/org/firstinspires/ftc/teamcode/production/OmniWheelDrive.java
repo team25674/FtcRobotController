@@ -51,7 +51,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Holonomic drives provide the ability for the robot to move in three axes (directions) simultaneously.
  * Each motion axis is controlled by one Joystick axis.
  *
- * 1) Axial:    Driving forward and backward               Left-joystick Forward/Backward
+ * 1) Axial:    Driving forward and backward                Left-joystick Forward/Backward
  * 2) Lateral:  Strafing right and left                     Left-joystick Right and Left
  * 3) Yaw:      Rotating Clockwise and counter clockwise    Right-joystick Right and Left
  *
