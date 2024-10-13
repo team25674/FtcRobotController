@@ -13,6 +13,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
     static final double COUNTS_PER_INCH = 1000; // TODO: Measure this!!
 
     // Preset Positions
+    double positionZero = 0;
     double position1Inches = 8;
     double position2Inches = 18;
 
@@ -20,7 +21,10 @@ public class TutorialDriveToEncoderPosition extends OpMode {
     private DcMotor motor = null;
 
     // Button states for edge detection
-    boolean previousStartButtonState = false;
+    boolean lastButtonStart = false;
+    boolean lastButtonA = false;
+    boolean lastButtonB = false;
+    boolean lastButtonX = false;
     private final ElapsedTime runtime = new ElapsedTime();
 
     // Tracking states
@@ -31,11 +35,11 @@ public class TutorialDriveToEncoderPosition extends OpMode {
     // Telemetry Tags
     private static final String TAG_MOTOR_ENABLED = "Enabled";    // Is Motor Enabled
     private static final String TAG_MOTOR_ACTIVE = "Active";      // Is Motor Active
-    private static final String TAG_MOTOR_BUSY = "Motor Busy";        // Is Motor Reporting Busy status
+    private static final String TAG_MOTOR_BUSY = "Motor Busy";    // Is Motor Reporting Busy status
     private static final String TAG_MOTOR_POWER = "Motor Power";  // Current motor power
     private static final String TAG_MOTOR_POS = "Motor Pos.";     // Motor position in inches todo
     private static final String TAG_ENCODER_POS = "Encoder Pos."; // Motor encoder raw position
-    private static final String TAG_RUNTIME = "Run Time"; // Motor encoder raw position
+    private static final String TAG_RUNTIME = "Run Time";         // Motor encoder raw position
 
     @Override
     public void init() {
@@ -56,34 +60,20 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
     @Override
     public void loop() {
-        // Do anything exactly once (start timer)
+        // Do on first loop only
         if (firstLoop){
             firstLoop = false;
             runtime.reset();
         }
 
-        // Allow handleMotorEnabled() to run
-        handleMotorEnabled();
+        // Process button presses
+        handleButtons();
 
-        // Run motor if enabled
-        if (motorEnabled) {
-
-            // Wait for button press / command
-            if (!motorActive && gamepad1.a) {
-                // A --> Go to position 1
-                start(DRIVE_SPEED, position1Inches, 10);
-            }
-            if (!motorActive && gamepad1.b) {
-                // B --> Go to position 2
-                start(DRIVE_SPEED, position2Inches, 15);
-            }
-
-            // Check on any active routine
-            if (motorActive) {
-                // Reset when motor is no longer busy
-                if (!motor.isBusy()) {
-                    reset();
-                }
+        // Handle if motor is active
+        if (motorActive) {
+            // Reset when motor is no longer busy
+            if (!motor.isBusy()) {
+                reset();
             }
         }
 
@@ -91,7 +81,56 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         updateTelemetry();
     }
 
+    private void handleButtons() {
+        // START button
+        if (lastButtonStart && !gamepad1.start) {
+            // enable or disable the motor
+            motorEnabled = !motorEnabled; // toggle motor enablement
+            if (motorEnabled) {
+                enableMotor();
+            } else {
+                disableMotor();
+            }
+        }
+
+        // A button
+        if (lastButtonA && !gamepad1.a) {
+            // A --> Go to position 1
+            start(DRIVE_SPEED, position1Inches, 10);
+        }
+
+        // B button
+        if (lastButtonB && !gamepad1.b) {
+            // B --> Go to position 2
+            start(DRIVE_SPEED, position2Inches, 15);
+        }
+
+        // X button
+        if (lastButtonX && !gamepad1.x) {
+            // B --> Go to position zero
+            start(DRIVE_SPEED, positionZero, 15);
+        }
+
+        // save current button states for next loop
+        lastButtonStart = gamepad1.start;
+        lastButtonA = gamepad1.a;
+        lastButtonB = gamepad1.b;
+    }
+
+
     private void start(double speed, double leftInches, double timeoutS) {
+        // Ensure motor is enabled
+        if (!motorEnabled){
+            telemetry.log().add("Cannot start, motor not enabled!");
+            return;
+        }
+
+        // Ensure motor is not already active
+        if (motorActive){
+            telemetry.log().add("Cannot start, motor already active!");
+            return;
+        }
+
         // Determine new target position, and pass to motor controller
         int newTarget = motor.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
         motor.setTargetPosition(newTarget);
@@ -128,24 +167,6 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
         // Allow motor to be moved by hand
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    }
-
-    private void handleMotorEnabled() {
-        // wait to let go of start button
-        if (previousStartButtonState && !gamepad1.start) {
-            // Button was pressed!!
-            motorEnabled = !motorEnabled; // toggle motor enablement
-
-            // Perform action
-            if (motorEnabled) {
-                enableMotor();
-            } else {
-                disableMotor();
-            }
-        }
-
-        // save current button state for next loop
-        previousStartButtonState = gamepad1.start;
     }
 
     private void updateTelemetry() {
