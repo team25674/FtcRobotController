@@ -19,19 +19,19 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
     // Motor
     private DcMotor motor = null;
+    boolean motorActive = false;
+    boolean motorEnabled = false;
 
-    // Button states for edge detection
+    // Button states (for edge detection)
     boolean lastButtonStart = false;
     boolean lastButtonGuide = false;
     boolean lastButtonA = false;
     boolean lastButtonB = false;
     boolean lastButtonX = false;
-    private final ElapsedTime runtime = new ElapsedTime();
 
-    // Tracking states
+    // Misc
     boolean firstLoop = true;
-    boolean motorActive = false;
-    boolean motorEnabled = false;
+    private final ElapsedTime runtime = new ElapsedTime();
 
     // Telemetry Tags
     private static final String TAG_MOTOR_ENABLED = "Enabled";    // Is Motor Enabled
@@ -44,19 +44,12 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
     @Override
     public void init() {
-        // Initialize the drive system variables.
+        // Initialize motor
         motor = hardwareMap.get(DcMotor.class, "motor");
         motor.setDirection(DcMotor.Direction.FORWARD);
-
-        // TODO: Find zero ref point? Or is manual stow at zero good enough?
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        // reset states
         motorEnabled = false;
-        motorActive = false;
-
-        // Prepare motor run mode
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        reset();
+        // TODO: Find zero ref point? Or is manual stow at zero good enough?
     }
 
     @Override
@@ -64,7 +57,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         // Do on first loop only
         if (firstLoop){
             firstLoop = false;
-            runtime.reset();
+            runtime.reset(); // start timer
         }
 
         // Process button presses
@@ -83,7 +76,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
     }
 
     private void handleButtons() {
-        // START button
+        // START button --> Toggle motor on/off
         if (lastButtonStart && !gamepad1.start) {
             // enable or disable the motor
             if (motorEnabled) {
@@ -93,38 +86,35 @@ public class TutorialDriveToEncoderPosition extends OpMode {
             }
         }
 
-        // GUIDE/SELECT button
+        // GUIDE/SELECT button --> Reset Encoder Zero
         if (lastButtonGuide && !gamepad1.guide) {
             resetMotorZero();
         }
 
-        // A button
-        if (lastButtonA && !gamepad1.a) {
-            // A --> Go to position 1
-            start(DRIVE_SPEED, position1Inches, 10);
-        }
-
-        // B button
-        if (lastButtonB && !gamepad1.b) {
-            // B --> Go to position 2
-            start(DRIVE_SPEED, position2Inches, 15);
-        }
-
-        // X button
+        // X button --> Go to position zero
         if (lastButtonX && !gamepad1.x) {
-            // B --> Go to position zero
-            start(DRIVE_SPEED, positionZero, 15);
+            start(DRIVE_SPEED, positionZero);
+        }
+
+        // A button --> Go to position 1
+        if (lastButtonA && !gamepad1.a) {
+            start(DRIVE_SPEED, position1Inches);
+        }
+
+        // B button --> Go to position 2
+        if (lastButtonB && !gamepad1.b) {
+            start(DRIVE_SPEED, position2Inches);
         }
 
         // save current button states for next loop
         lastButtonStart = gamepad1.start;
         lastButtonGuide = gamepad1.guide;
+        lastButtonX = gamepad1.x;
         lastButtonA = gamepad1.a;
         lastButtonB = gamepad1.b;
-        lastButtonX = gamepad1.x;
     }
 
-    private void start(double speed, double leftInches, double timeoutS) {
+    private void start(double speed, double positionInches) {
         // Ensure motor is enabled
         if (!motorEnabled){
             telemetry.log().add("Cannot start, motor not enabled!");
@@ -138,7 +128,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         }
 
         // Determine new target position, and pass to motor controller
-        int newTarget = motor.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+        int newTarget = motor.getCurrentPosition() + (int) (positionInches * COUNTS_PER_INCH);
         motor.setTargetPosition(newTarget);
 
         // Turn On RUN_TO_POSITION
