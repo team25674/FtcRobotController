@@ -22,6 +22,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
     // Button states for edge detection
     boolean lastButtonStart = false;
+    boolean lastButtonGuide = false;
     boolean lastButtonA = false;
     boolean lastButtonB = false;
     boolean lastButtonX = false;
@@ -85,12 +86,16 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         // START button
         if (lastButtonStart && !gamepad1.start) {
             // enable or disable the motor
-            motorEnabled = !motorEnabled; // toggle motor enablement
             if (motorEnabled) {
-                enableMotor();
-            } else {
                 disableMotor();
+            } else {
+                enableMotor();
             }
+        }
+
+        // GUIDE/SELECT button
+        if (lastButtonGuide && !gamepad1.guide) {
+            resetMotorZero();
         }
 
         // A button
@@ -113,10 +118,11 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
         // save current button states for next loop
         lastButtonStart = gamepad1.start;
+        lastButtonGuide = gamepad1.guide;
         lastButtonA = gamepad1.a;
         lastButtonB = gamepad1.b;
+        lastButtonX = gamepad1.x;
     }
-
 
     private void start(double speed, double leftInches, double timeoutS) {
         // Ensure motor is enabled
@@ -157,11 +163,23 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         motorActive = false;
     }
 
+    private void resetMotorZero() {
+        // Ensure motor is not active
+        if (motorActive){
+            telemetry.log().add("Cannot reset motor zero, motor already active!");
+            return;
+        }
+
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
     private void enableMotor() {
+        motorEnabled = true;
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     private void disableMotor() {
+        motorEnabled = false;
         motor.setPower(0);
         motorActive = false;
 
