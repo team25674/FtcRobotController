@@ -93,17 +93,17 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
         // X button --> Go to position zero
         if (lastButtonX && !gamepad1.x) {
-            start(DRIVE_SPEED, positionZero);
+            goToPosition(DRIVE_SPEED, positionZero);
         }
 
         // A button --> Go to position 1
         if (lastButtonA && !gamepad1.a) {
-            start(DRIVE_SPEED, position1Inches);
+            goToPosition(DRIVE_SPEED, position1Inches);
         }
 
         // B button --> Go to position 2
         if (lastButtonB && !gamepad1.b) {
-            start(DRIVE_SPEED, position2Inches);
+            goToPosition(DRIVE_SPEED, position2Inches);
         }
 
         // save current button states for next loop
@@ -114,7 +114,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         lastButtonB = gamepad1.b;
     }
 
-    private void start(double speed, double positionInches) {
+    private void goToPosition(double speed, double positionInches) {
         // Ensure motor is enabled
         if (!motorEnabled){
             telemetry.log().add("Cannot start, motor not enabled!");
@@ -134,8 +134,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         // Turn On RUN_TO_POSITION
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // reset the timeout time and start motion.
-        runtime.reset();
+        // Start motion
         motor.setPower(Math.abs(speed));
 
         // Update tracking state
