@@ -129,7 +129,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         }
 
         // Determine new target position, and pass to motor controller
-        int newTarget = motor.getCurrentPosition() + (int) (positionInches * COUNTS_PER_INCH);
+        int newTarget = (int) (positionInches * COUNTS_PER_INCH);
         motor.setTargetPosition(newTarget);
 
         // Turn On RUN_TO_POSITION
