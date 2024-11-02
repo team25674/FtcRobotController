@@ -9,6 +9,8 @@ public class LinearSlide {
     public DcMotor motor;
     int max;
 
+    //Could maybe add "COUNTS_PER_INCH" as a parameter for the linear slide constructor class,
+    // because linear slides could have different gear ratios and such and stuff
     public LinearSlide(DcMotor motor, int max) {
         this.motor = motor;
         this.max = max;
@@ -34,6 +36,13 @@ public class LinearSlide {
 
     public void extend(double speed) {
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor.setPower(speed);
+// "max - 0.5" gives a little buffer zone thing // else function thing is if the slide is above max
+       if((motor.getCurrentPosition() / COUNTS_PER_INCH) <= (max - 0.5) && (motor.getCurrentPosition() / COUNTS_PER_INCH) <= 0)) {
+           motor.setPower(speed);
+       } else if ((motor.getCurrentPosition() / COUNTS_PER_INCH) <= 0) {
+
+       } else {
+           motor.setPower(0);
+       }
     }
 }
