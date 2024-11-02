@@ -2,13 +2,15 @@
 package org.firstinspires.ftc.teamcode.production;
 
 //(use for later)import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.lib.mechanisms.LinearSlide;
 
-@TeleOp(name="RobotOpMode", group="Linear OpMode")
+@TeleOp(name = "RobotOpMode", group = "Linear OpMode")
 public class RobotOpMode extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
@@ -18,27 +20,21 @@ public class RobotOpMode extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
     private LinearSlide linearSlide = null;
+    //buton states
+    boolean lastButtonY = false;
+    boolean lastButtonB = false;
+    boolean lastButtonA = false;
 
     @Override
     public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "motor0");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "motor2");
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "motor0");
+        leftBackDrive = hardwareMap.get(DcMotor.class, "motor2");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "motor1");
         rightBackDrive = hardwareMap.get(DcMotor.class, "motor3");
-
-        // ########################################################################################
-        // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
-        // ########################################################################################
-        // Most robots need the motors on one side to be reversed to drive forward.
-        // The motor reversals shown here are for a "direct drive" robot (the wheels turn the same direction as the motor shaft)
-        // If your robot has additional gear reductions or uses a right-angled drive, it's important to ensure
-        // that your motors are turning in the correct direction.  So, start out with the reversals here, BUT
-        // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
-        // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
-        // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
+        //
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -48,6 +44,12 @@ public class RobotOpMode extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+
+        //"deviceName" and "int max" parameters need to be configured and measured respectively
+        DcMotor linearSlideMotor = hardwareMap.get(DcMotor.class, "lsMotor");
+        linearSlide = new LinearSlide(linearSlideMotor, LinearSlide.POS_UPPER_BASKET_INCHES);
+
+
         waitForStart();
         runtime.reset();
 
@@ -56,16 +58,16 @@ public class RobotOpMode extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+            double axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral = gamepad1.left_stick_x;
+            double yaw = gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = axial + lateral + yaw;
+            double leftFrontPower = axial + lateral + yaw;
             double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower   = axial - lateral + yaw;
-            double rightBackPower  = axial + lateral - yaw;
+            double leftBackPower = axial - lateral + yaw;
+            double rightBackPower = axial + lateral - yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -74,10 +76,10 @@ public class RobotOpMode extends LinearOpMode {
             max = Math.max(max, Math.abs(rightBackPower));
 
             if (max > 1.0) {
-                leftFrontPower  /= max;
+                leftFrontPower /= max;
                 rightFrontPower /= max;
-                leftBackPower   /= max;
-                rightBackPower  /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
             }
 
             // This is test code:
@@ -108,5 +110,33 @@ public class RobotOpMode extends LinearOpMode {
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
+
+
+            //------------------------------------------------------
+            // LinearSlide Code
+            //------------------------------------------------------
+
+
+
+            //Button detection
+
+            if (lastButtonY && !gamepad2.y){
+                linearSlide.goToPosition(LinearSlide.POS_UPPER_BASKET_INCHES);
+            }
+
+            if (lastButtonB && !gamepad2.b){
+                linearSlide.goToPosition(LinearSlide.POS_LOWER_BASKET_INCHES);
+            }
+
+            if (lastButtonA && !gamepad2.a){
+                linearSlide.goToPosition(0);
+            }
+
+            lastButtonY = gamepad2.y;
+            lastButtonB = gamepad2.b;
+            lastButtonA = gamepad2.a;
+
+
         }
-    }}
+    }
+}

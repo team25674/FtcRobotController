@@ -4,14 +4,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class LinearSlide {
     static final double COUNTS_PER_INCH = 112.8181;
-    public static int POS_LOWER_BASKET_INCHES = 5;
-    public static int POS_UPPER_BASKET_INCHES = 10;
+    public static int POS_LOWER_BASKET_INCHES = 30;
+    public static int POS_UPPER_BASKET_INCHES = 45;
     public DcMotor motor;
     int max;
 
     public LinearSlide(DcMotor motor, int max) {
         this.motor = motor;
         this.max = max;
+        motor.setDirection(DcMotor.Direction.FORWARD);
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void goToPosition(int positionInches) {
