@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tutorials;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Encoder RUN_TO_POSITION Test 1", group = "Tutorials")
@@ -10,7 +11,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
     // Constants
     static final double DRIVE_SPEED = 0.6;
-    static final double COUNTS_PER_INCH = 1000; // TODO: Measure this!!
+    static final double COUNTS_PER_INCH = 112.8181; //
 
     // Preset Positions
     double positionZero = 0;
@@ -45,8 +46,8 @@ public class TutorialDriveToEncoderPosition extends OpMode {
     @Override
     public void init() {
         // Initialize motor
-        motor = hardwareMap.get(DcMotor.class, "motor");
-        motor.setDirection(DcMotor.Direction.FORWARD);
+        motor = hardwareMap.get(DcMotor.class, "motor0");
+        motor.setDirection(DcMotor.Direction.REVERSE);
         motorEnabled = false;
         reset();
         // TODO: Find zero ref point? Or is manual stow at zero good enough?
@@ -87,7 +88,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         }
 
         // GUIDE/SELECT button --> Reset Encoder Zero
-        if (lastButtonGuide && !gamepad1.guide) {
+        if (lastButtonGuide && !gamepad1.y) {
             resetMotorZero();
         }
 
@@ -108,7 +109,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
 
         // save current button states for next loop
         lastButtonStart = gamepad1.start;
-        lastButtonGuide = gamepad1.guide;
+        lastButtonGuide = gamepad1.y;
         lastButtonX = gamepad1.x;
         lastButtonA = gamepad1.a;
         lastButtonB = gamepad1.b;
@@ -128,7 +129,7 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         }
 
         // Determine new target position, and pass to motor controller
-        int newTarget = motor.getCurrentPosition() + (int) (positionInches * COUNTS_PER_INCH);
+        int newTarget = (int) (positionInches * COUNTS_PER_INCH);
         motor.setTargetPosition(newTarget);
 
         // Turn On RUN_TO_POSITION
@@ -181,10 +182,10 @@ public class TutorialDriveToEncoderPosition extends OpMode {
         telemetry.addData(TAG_MOTOR_ENABLED, "%B", motorEnabled);
         telemetry.addData(TAG_MOTOR_ACTIVE, "%B", motorActive);
         telemetry.addData(TAG_MOTOR_BUSY, "%B", motor.isBusy());
-        telemetry.addData(TAG_MOTOR_POWER, "%.5f", motor.getPower());
-        telemetry.addData(TAG_MOTOR_POS, "%d", motor.getCurrentPosition());
-        telemetry.addData(TAG_ENCODER_POS, "%d", motor.getCurrentPosition());
-        telemetry.addData(TAG_RUNTIME, "%d", runtime.seconds());
+        telemetry.addData(TAG_MOTOR_POWER,  motor.getPower());
+        telemetry.addData(TAG_MOTOR_POS,  motor.getCurrentPosition());
+        telemetry.addData(TAG_ENCODER_POS,  motor.getCurrentPosition());
+        telemetry.addData(TAG_RUNTIME,  runtime.seconds());
         telemetry.update();
     }
 }
