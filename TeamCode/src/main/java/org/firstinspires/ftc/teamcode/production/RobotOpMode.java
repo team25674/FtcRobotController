@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.production;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.lib.mechanisms.LinearSlide;
@@ -20,6 +21,11 @@ public class RobotOpMode extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
     private LinearSlide linearSlide = null;
+    private Servo wheel1;
+    private Servo wheel2;
+    private Servo upAndDown;
+    private Spy spy;
+
     //buton states
     boolean lastButtonY = false;
     boolean lastButtonB = false;
@@ -48,6 +54,13 @@ public class RobotOpMode extends LinearOpMode {
         //"deviceName" and "int max" parameters need to be configured and measured respectively
         DcMotor linearSlideMotor = hardwareMap.get(DcMotor.class, "lsMotor");
         linearSlide = new LinearSlide(linearSlideMotor, LinearSlide.POS_UPPER_BASKET_INCHES);
+       // spy servos
+        wheel1 = hardwareMap.get(Servo.class, "wheel1Servo");
+        wheel2 = hardwareMap.get(Servo.class, "wheel2Servo");
+        upAndDown = hardwareMap.get(Servo.class, "upAndDownServo");
+        spy = new Spy(wheel1, wheel2, upAndDown);
+
+
 
 
         waitForStart();
@@ -142,7 +155,34 @@ public class RobotOpMode extends LinearOpMode {
             lastButtonB = gamepad2.b;
             lastButtonA = gamepad2.a;
 
+            //spy controlls
+            if (gamepad2.dpad_down) {
+                spy.down();
+                telemetry.addLine("down detected");
+            }
+            if (gamepad2.dpad_up) {
+                spy.up();
+                telemetry.addLine("up detected");
+
+            }
+            if (gamepad2.dpad_left) {
+                spy.intake();
+                telemetry.addLine("left detected");
+
+            }
+            if (gamepad2.dpad_right) {
+                spy.reject();
+                telemetry.addLine("right detected");
+
+            }
+            telemetry.addData("wheel1 position", wheel1.getPosition());
+            telemetry.addData("wheel2 position", wheel2.getPosition());
+            telemetry.addData("upAndDown position",upAndDown.getPosition());
+            telemetry.update();
+
+
 
         }
+
     }
 }
