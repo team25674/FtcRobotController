@@ -132,6 +132,12 @@ public class RobotOpMode extends LinearOpMode {
                 linearSlide.goToPosition(0);
             }
 
+            if (gamepad2.right_stick_y != 0){
+                linearSlide.extend(gamepad2.right_stick_y);
+            } else if (!linearSlide.motor.isBusy()) {
+                linearSlide.motor.setPower(0);
+            }
+
             lastButtonY = gamepad2.y;
             lastButtonB = gamepad2.b;
             lastButtonA = gamepad2.a;
