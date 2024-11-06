@@ -195,6 +195,9 @@ public class OmniWheelDrive extends LinearOpMode {
                 telemetry.addLine("right detected");
 
             }
+            telemetry.addData("wheel1 position", wheel1.getPosition());
+            telemetry.addData("wheel2 position", wheel2.getPosition());
+            telemetry.addData("upAndDown position",upAndDown.getPosition());
             telemetry.update();
 
 
