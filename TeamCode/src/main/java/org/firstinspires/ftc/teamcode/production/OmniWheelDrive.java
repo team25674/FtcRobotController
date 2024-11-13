@@ -29,11 +29,13 @@
 
 package org.firstinspires.ftc.teamcode.production;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.lib.mechanisms.Spy;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -72,16 +74,26 @@ public class OmniWheelDrive extends LinearOpMode {
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+    private Servo wheel1;
+    private Servo wheel2;
+    private Servo upAndDown;
+    private Spy spy;
+
 
     @Override
     public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "motor0");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "motor2");
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "motor0");
+        leftBackDrive = hardwareMap.get(DcMotor.class, "motor2");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "motor1");
         rightBackDrive = hardwareMap.get(DcMotor.class, "motor3");
+
+        wheel1 = hardwareMap.get(Servo.class, "wheel1Servo");
+        wheel2 = hardwareMap.get(Servo.class, "wheel2Servo");
+        upAndDown = hardwareMap.get(Servo.class, "upAndDownServo");
+        spy = new Spy(wheel1, wheel2, upAndDown);
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -110,16 +122,16 @@ public class OmniWheelDrive extends LinearOpMode {
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+            double axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            double lateral = gamepad1.left_stick_x;
+            double yaw = gamepad1.right_stick_x;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = axial + lateral + yaw;
+            double leftFrontPower = axial + lateral + yaw;
             double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower   = axial - lateral + yaw;
-            double rightBackPower  = axial + lateral - yaw;
+            double leftBackPower = axial - lateral + yaw;
+            double rightBackPower = axial + lateral - yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -128,10 +140,10 @@ public class OmniWheelDrive extends LinearOpMode {
             max = Math.max(max, Math.abs(rightBackPower));
 
             if (max > 1.0) {
-                leftFrontPower  /= max;
+                leftFrontPower /= max;
                 rightFrontPower /= max;
-                leftBackPower   /= max;
-                rightBackPower  /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
             }
 
             // This is test code:
@@ -149,6 +161,7 @@ public class OmniWheelDrive extends LinearOpMode {
             leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
             rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
             rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
+
             */
 
             // Send calculated power to wheels
@@ -162,5 +175,34 @@ public class OmniWheelDrive extends LinearOpMode {
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
+
+            //Spy controlls.
+            if (gamepad2.dpad_down) {
+                spy.down();
+                telemetry.addLine("down detected");
+            }
+            if (gamepad2.dpad_up) {
+                spy.up();
+                telemetry.addLine("up detected");
+
+            }
+            if (gamepad2.dpad_left) {
+                spy.intake();
+                telemetry.addLine("left detected");
+
+            }
+            if (gamepad2.dpad_right) {
+                spy.reject();
+                telemetry.addLine("right detected");
+
+            }
+            telemetry.addData("wheel1 position", wheel1.getPosition());
+            telemetry.addData("wheel2 position", wheel2.getPosition());
+            telemetry.addData("upAndDown position",upAndDown.getPosition());
+            telemetry.update();
+
+
+
         }
-    }}
+    }
+}
