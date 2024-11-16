@@ -21,7 +21,8 @@ public class RobotOpMode extends LinearOpMode {
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
-    private LinearSlide linearSlide = null;
+    private LinearSlide verticalLinearSlide = null;
+    private LinearSlide horizontalLinearSlide = null;
     private Servo wheel1;
     private Servo wheel2;
     private Servo upAndDown;
@@ -51,17 +52,18 @@ public class RobotOpMode extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-
-        //"deviceName" and "int max" parameters need to be configured and measured respectively
-        DcMotor linearSlideMotor = hardwareMap.get(DcMotor.class, "lsMotor");
-        linearSlide = new LinearSlide(linearSlideMotor, LinearSlide.POS_UPPER_BASKET_INCHES);
-       // spy servos
+        DcMotor verticalLinearSlideMotor = hardwareMap.get(DcMotor.class, "vlsMotor");
+        //TODO Horizontal linear slide motor needs hardware map, and vertical linear slide needs a rename on the hardware map
+        DcMotor horizontalLinearSlideMotor = hardwareMap.get(DcMotor.class, "hlsMotor");
+        //Vertical linear slide
+        verticalLinearSlide = new LinearSlide(verticalLinearSlideMotor, LinearSlide.POS_UPPER_BASKET_INCHES);
+        //Horizontal linear slide TODO Measure real value of horizontalLinearSlide max position
+        horizontalLinearSlide = new LinearSlide(horizontalLinearSlideMotor, 10);
+        // spy servos
         wheel1 = hardwareMap.get(Servo.class, "wheel1Servo");
         wheel2 = hardwareMap.get(Servo.class, "wheel2Servo");
         upAndDown = hardwareMap.get(Servo.class, "upAndDownServo");
         spy = new Spy(wheel1, wheel2, upAndDown);
-
-
 
 
         waitForStart();
@@ -130,26 +132,30 @@ public class RobotOpMode extends LinearOpMode {
             // LinearSlide Code
             //------------------------------------------------------
 
-
-
             //Button detection
 
-            if (lastButtonY && !gamepad2.y){
-                linearSlide.goToPosition(LinearSlide.POS_UPPER_BASKET_INCHES);
+            if (lastButtonY && !gamepad2.y) {
+                verticalLinearSlide.goToPosition(LinearSlide.POS_UPPER_BASKET_INCHES);
             }
 
-            if (lastButtonB && !gamepad2.b){
-                linearSlide.goToPosition(LinearSlide.POS_LOWER_BASKET_INCHES);
+            if (lastButtonB && !gamepad2.b) {
+                verticalLinearSlide.goToPosition(LinearSlide.POS_LOWER_BASKET_INCHES);
             }
 
-            if (lastButtonA && !gamepad2.a){
-                linearSlide.goToPosition(0);
+            if (lastButtonA && !gamepad2.a) {
+                verticalLinearSlide.goToPosition(0);
             }
 
-            if (gamepad2.right_stick_y != 0){
-                linearSlide.extend(gamepad2.right_stick_y);
-            } else if (!linearSlide.motor.isBusy()) {
-                linearSlide.motor.setPower(0);
+            if (gamepad2.right_stick_y != 0) {
+                verticalLinearSlide.extend(gamepad2.right_stick_y);
+            } else if (!verticalLinearSlide.motor.isBusy()) {
+                verticalLinearSlide.motor.setPower(0);
+            }
+
+            if (gamepad2.left_stick_y != 0) {
+                horizontalLinearSlide.extend(gamepad2.left_stick_y);
+            } else if (!horizontalLinearSlide.motor.isBusy()) {
+                horizontalLinearSlide.motor.setPower(0);
             }
 
             lastButtonY = gamepad2.y;
@@ -178,10 +184,8 @@ public class RobotOpMode extends LinearOpMode {
             }
             telemetry.addData("wheel1 position", wheel1.getPosition());
             telemetry.addData("wheel2 position", wheel2.getPosition());
-            telemetry.addData("upAndDown position",upAndDown.getPosition());
+            telemetry.addData("upAndDown position", upAndDown.getPosition());
             telemetry.update();
-
-
 
         }
 
