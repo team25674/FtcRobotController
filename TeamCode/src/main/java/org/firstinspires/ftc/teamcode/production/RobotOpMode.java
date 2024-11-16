@@ -153,7 +153,7 @@ public class RobotOpMode extends LinearOpMode {
             }
 
             if (gamepad2.left_stick_y != 0) {
-                horizontalLinearSlide.extend(gamepad2.left_stick_y):
+                horizontalLinearSlide.extend(gamepad2.left_stick_y);
             } else if (!horizontalLinearSlide.motor.isBusy()) {
                 horizontalLinearSlide.motor.setPower(0);
             }
