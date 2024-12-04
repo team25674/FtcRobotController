@@ -157,12 +157,10 @@ public class RobotOpMode extends LinearOpMode {
             } else if (!horizontalLinearSlide.motor.isBusy()) {
                 horizontalLinearSlide.motor.setPower(0);
             }
-
             lastButtonY = gamepad2.y;
             lastButtonB = gamepad2.b;
             lastButtonA = gamepad2.a;
-
-            //spy controlls
+            //spy controlls change controlls to triggers and get some data on analog
             if (gamepad2.dpad_down) {
                 spy.down();
                 telemetry.addLine("down detected");
