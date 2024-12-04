@@ -21,6 +21,7 @@ public class ClawAttachment {
     }
     public void intake() {
         wheel1.setPosition(INTAKE_POSITION_WHEEL1);
+        wheel2.setPosition(INTAKE_POSITION_WHEEL2);
 
     }
     public void reject() {
